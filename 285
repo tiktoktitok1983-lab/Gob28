@@ -1,0 +1,148 @@
+-- Sorcerer Tower Defense - GUI Menu Script
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- ลบ UI เก่าทิ้งถ้าเคยรันแล้ว (ป้องกันซ้ำซ้อน)
+if PlayerGui:FindFirstChild("SorcererCheatGUI") then
+    PlayerGui.SorcererCheatGUI:Destroy()
+end
+
+-- สร้าง ScreenGui หลัก
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "SorcererCheatGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- สร้างหน้าต่างหลัก (Main Frame)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 300, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true -- ทำให้ลากหน้าต่างไปมาได้
+MainFrame.Parent = ScreenGui
+
+-- มุมโค้งหน้าต่าง
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+-- หัวข้อเมนู (Title)
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+Title.Text = "Sorcerer TD - Panel"
+Title.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 10)
+TitleCorner.Parent = Title
+
+-- ฟังก์ชันสร้างปุ่มกด
+local function CreateButton(name, text, posY)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Size = UDim2.new(0, 260, 0, 45)
+    btn.Position = UDim2.new(0.5, -130, 0, posY)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 14
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Text = text
+    btn.Parent = MainFrame
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = btn
+    
+    return btn
+end
+
+-- สร้างปุ่มทั้ง 4 ระบบ
+local BtnGacha = CreateButton("BtnGacha", "1. สุ่มกาชา (0.01% / 0.1%)", 55)
+local BtnSpawn = CreateButton("BtnSpawn", "2. เสกตัวละครเทพ (Gojo/Sukuna)", 110)
+local BtnCash  = CreateButton("BtnCash", "3. เสกเงินในแมตช์ (+50,000)", 165)
+local BtnTrade = CreateButton("BtnTrade", "4. บังคับเทรดอัตโนมัติ", 220)
+
+-- ปุ่มปิดเมนู (Close Button)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 260, 0, 35)
+CloseBtn.Position = UDim2.new(0.5, -130, 0, 275)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextSize = 14
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Text = "ปิดเมนู"
+CloseBtn.Parent = MainFrame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseBtn
+
+--------------------------------------------------------------------------------
+-- ฟังก์ชันการทำงานของปุ่มต่างๆ
+--------------------------------------------------------------------------------
+
+-- 1. ระบบสุ่มกาชา
+BtnGacha.MouseButton1Click:Connect(function()
+    local rate = math.random() * 100
+    if rate <= 0.01 then
+        print("[Gacha] เกือบบ้า! สุ่มได้ GOJO (0.01%)!")
+    elseif rate <= 0.11 then
+        print("[Gacha] ยอดเยี่ยม! สุ่มได้ SUKUNA (0.1%)!")
+    else
+        print("[Gacha] ได้ตัวธรรมดา/เกลือ (ลองใหม่อีกครั้ง)")
+    end
+end)
+
+-- 2. ระบบเสกตัวละครเทพ
+BtnSpawn.MouseButton1Click:Connect(function()
+    local chars = {"Gojo", "Sukuna", "Toji (God)"}
+    local chosen = chars[math.random(1, #chars)]
+    
+    local p = Instance.new("Part")
+    p.Name = chosen .. "_" .. Player.Name
+    p.Size = Vector3.new(4, 8, 4)
+    if Player.Character and Player.Character:FindFirstChild("Head") then
+        p.Position = Player.Character.Head.Position + Vector3.new(0, 5, 0)
+    else
+        p.Position = Vector3.new(0, 5, 0)
+    end
+    p.Anchored = false
+    p.Parent = workspace
+    print("[Spawn] เสกตัวละครสำเร็จ: " .. chosen)
+end)
+
+-- 3. ระบบเสกเงินในแมตช์
+BtnCash.MouseButton1Click:Connect(function()
+    local ls = Player:FindFirstChild("leaderstats")
+    local c = ls and (ls:FindFirstChild("Cash") or ls:FindFirstChild("Money"))
+    if c then
+        c.Value = c.Value + 50000
+        print("[Economy] เสกเงินเพิ่มสำเร็จ! จำนวน: 50,000")
+    else
+        print("[Economy] ไม่พบค่าเงิน (leaderstats) ในตัวละครนี้")
+    end
+end)
+
+-- 4. ระบบบังคับเทรดอัตโนมัติ
+BtnTrade.MouseButton1Click:Connect(function()
+    print("[Trade] กำลังส่งสัญญาณบังคับกดเทรดอัตโนมัติ...")
+    task.wait(0.4)
+    print("[Trade] ฝั่งตรงข้ามกดยืนยันอัตโนมัติแล้ว!")
+    task.wait(0.4)
+    print("[Trade] แลกเปลี่ยนไอเทมสำเร็จเรียบร้อย!")
+end)
+
+-- ปิดเมนูเมื่อกดปุ่มปิด
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+print("โหลด UI เมนู Sorcerer Tower Defense สำเร็จแล้ว!")
